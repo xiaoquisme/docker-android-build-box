@@ -1,10 +1,9 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 
 RUN uname -a && uname -m
 
 ENV ANDROID_HOME="/opt/android-sdk" \
-    ANDROID_NDK="/opt/android-sdk/ndk/current" \
-    FLUTTER_HOME="/opt/flutter"
+    ANDROID_NDK="/opt/android-sdk/ndk/current"
 
 # support amd64 and arm64
 RUN JDK_PLATFORM=$(if [ "$(uname -m)" = "aarch64" ]; then echo "arm64"; else echo "amd64"; fi) && \
@@ -19,7 +18,8 @@ ENV TZ=America/Los_Angeles
 ENV ANDROID_SDK_TOOLS_VERSION="4333796"
 
 # nodejs version
-ENV NODE_VERSION="14.x"
+ENV NODE_VERSION="8.x"
+ENV NVM_DIR=/usr/local/nvm
 
 # Set locale
 ENV LANG="en_US.UTF-8" \
@@ -39,7 +39,7 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 ENV ANDROID_SDK_HOME="$ANDROID_HOME"
 ENV ANDROID_NDK_HOME="$ANDROID_NDK"
 
-ENV PATH="$JAVA_HOME/bin:$PATH:$ANDROID_SDK_HOME/emulator:$ANDROID_SDK_HOME/tools/bin:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$ANDROID_NDK:$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin"
+ENV PATH="$JAVA_HOME/bin:$PATH:$ANDROID_SDK_HOME/tools/bin:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$ANDROID_NDK"
 
 WORKDIR /tmp
 
@@ -54,65 +54,30 @@ RUN apt-get update -qq > /dev/null && \
         curl \
         file \
         git \
-        gpg-agent \
-        less \
-        libc6-dev \
-        libgmp-dev \
-        libmpc-dev \
-        libmpfr-dev \
-        libxslt-dev \
-        libxml2-dev \
-        m4 \
-        ncurses-dev \
         ocaml \
         openjdk-8-jdk \
-        openjdk-11-jdk \
         openssh-client \
-        pkg-config \
-        ruby-full \
-        software-properties-common \
-        tzdata \
         unzip \
         vim-tiny \
         wget \
         zip \
-        zipalign \
-        s3cmd \
-        python \
-        zlib1g-dev > /dev/null && \
-    echo "JVM directories: `ls -l /usr/lib/jvm/`" && \
+        zipalign > /dev/null
+
+RUN echo "JVM directories: `ls -l /usr/lib/jvm/`" && \
     . /etc/jdk.env && \
     echo "Java version (default):" && \
     java -version && \
     echo "set timezone" && \
-    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
-    echo "nodejs, npm, cordova, ionic, react-native" && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN echo "nodejs, npm, cordova, ionic, react-native" && \
     curl -sL -k https://deb.nodesource.com/setup_${NODE_VERSION} \
-        | bash - > /dev/null && \
-    apt-get install -qq nodejs > /dev/null && \
-    apt-get clean > /dev/null && \
-    curl -sS -k https://dl.yarnpkg.com/debian/pubkey.gpg \
-        | apt-key add - > /dev/null && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" \
-        | tee /etc/apt/sources.list.d/yarn.list > /dev/null && \
-    apt-get update -qq > /dev/null && \
-    apt-get install -qq yarn > /dev/null && \
-    rm -rf /var/lib/apt/lists/ && \
-    npm install --quiet -g npm > /dev/null && \
-    npm install --quiet -g \
-        bower \
-        cordova \
-        eslint \
-        gulp \
-        ionic \
-        jshint \
-        karma-cli \
-        mocha \
-        node-gyp \
-        npm-check-updates \
-        react-native-cli > /dev/null && \
-    npm cache clean --force > /dev/null && \
-    rm -rf /tmp/* /var/tmp/*
+            | bash - && \
+    apt-get install -qq nodejs && \
+    apt-get clean
+
+
+RUN npm install --quiet -g npm
 
 # Install Android SDK
 RUN echo "sdk tools ${ANDROID_SDK_TOOLS_VERSION}" && \
@@ -143,39 +108,35 @@ RUN . /etc/jdk.env && \
 RUN echo "platforms" && \
     . /etc/jdk.env && \
     yes | "$ANDROID_HOME"/tools/bin/sdkmanager \
-        "platforms;android-32" \
-        "platforms;android-31" \
-        "platforms;android-30" \
-        "platforms;android-29" \
-        "platforms;android-28" \
-        "platforms;android-27" \
-        "platforms;android-26" > /dev/null
+        "platforms;android-26" \
+        "platforms;android-25" \
+        "platforms;android-24" \
+        "platforms;android-23" \
+        "platforms;android-22" \
+        "platforms;android-21" \
+        "platforms;android-20" \
+        "platforms;android-19" > /dev/null
 
 RUN echo "platform tools" && \
     . /etc/jdk.env && \
     yes | "$ANDROID_HOME"/tools/bin/sdkmanager \
         "platform-tools" > /dev/null
 
-RUN echo "build tools 26-30" && \
+RUN echo "build tools 19-26" && \
     . /etc/jdk.env && \
     yes | "$ANDROID_HOME"/tools/bin/sdkmanager \
-        "build-tools;31.0.0" \
-        "build-tools;30.0.0" "build-tools;30.0.2" "build-tools;30.0.3" \
-        "build-tools;29.0.3" "build-tools;29.0.2" \
-        "build-tools;28.0.3" "build-tools;28.0.2" \
-        "build-tools;27.0.3" "build-tools;27.0.2" "build-tools;27.0.1" \
-        "build-tools;26.0.2" "build-tools;26.0.1" "build-tools;26.0.0" > /dev/null
+        "build-tools;26.0.2" "build-tools;26.0.1" "build-tools;26.0.0" \
+        "build-tools;25.0.3" "build-tools;25.0.2" \
+        "build-tools;25.0.1" "build-tools;25.0.0" \
+        "build-tools;24.0.3" "build-tools;24.0.2" \
+        "build-tools;24.0.1" "build-tools;24.0.0"\
+        "build-tools;23.0.3" "build-tools;23.0.2" "build-tools;23.0.1" \
+        "build-tools;22.0.1" \
+        "build-tools;21.1.2" \
+        "build-tools;20.0.0" \
+        "build-tools;19.1.0"
 
-# seems there is no emulator on arm64
-# Warning: Failed to find package emulator
-RUN echo "emulator" && \
-    if [ "$(uname -m)" != "x86_64" ]; then echo "emulator only support Linux x86 64bit. skip for $(uname -m)"; exit 0; fi && \
-    . /etc/jdk.env && \
-    yes | "$ANDROID_HOME"/tools/bin/sdkmanager "emulator" > /dev/null
 
-# ndk-bundle does exist on arm64
-# RUN echo "NDK" && \
-#     yes | "$ANDROID_HOME"/tools/bin/sdkmanager "ndk-bundle" > /dev/null
 
 RUN echo "bundletool" && \
     wget -q https://github.com/google/bundletool/releases/download/1.9.1/bundletool-all-1.9.1.jar -O bundletool.jar && \
@@ -196,68 +157,12 @@ RUN ls -l $ANDROID_HOME && \
 
 RUN du -sh $ANDROID_HOME
 
-RUN echo "Flutter sdk" && \
-    if [ "$(uname -m)" != "x86_64" ]; then echo "Flutter only support Linux x86 64bit. skip for $(uname -m)"; exit 0; fi && \
-    cd /opt && \
-    wget --quiet https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_2.10.3-stable.tar.xz -O flutter.tar.xz && \
-    tar xf flutter.tar.xz && \
-    git config --global --add safe.directory $FLUTTER_HOME && \
-    flutter config --no-analytics && \
-    rm -f flutter.tar.xz
 
 # Copy sdk license agreement files.
 RUN mkdir -p $ANDROID_HOME/licenses
 COPY sdk/licenses/* $ANDROID_HOME/licenses/
-
-# Create some jenkins required directory to allow this image run with Jenkins
-RUN mkdir -p /var/lib/jenkins/workspace && \
-    mkdir -p /home/jenkins && \
-    chmod 777 /home/jenkins && \
-    chmod 777 /var/lib/jenkins/workspace && \
-    chmod -R 775 $ANDROID_HOME
-
-COPY Gemfile /Gemfile
-
-RUN echo "fastlane" && \
-    cd / && \
-    gem install bundler --quiet --no-document > /dev/null && \
-    mkdir -p /.fastlane && \
-    chmod 777 /.fastlane && \
-    bundle install --quiet
-
-# Add jenv to control which version of java to use, default to 11.
-RUN git clone https://github.com/jenv/jenv.git ~/.jenv && \
-    echo 'export PATH="$HOME/.jenv/bin:$PATH"' >> ~/.bash_profile && \
-    echo 'eval "$(jenv init -)"' >> ~/.bash_profile && \
-    . ~/.bash_profile && \
-    . /etc/jdk.env && \
-    java -version && \
-    jenv add /usr/lib/jvm/java-8-openjdk-$JDK_PLATFORM && \
-    jenv add /usr/lib/jvm/java-11-openjdk-$JDK_PLATFORM && \
-    jenv versions && \
-    jenv global 11 && \
-    java -version
-
-COPY README.md /README.md
-
-ARG BUILD_DATE=""
-ARG SOURCE_BRANCH=""
-ARG SOURCE_COMMIT=""
-ARG DOCKER_TAG=""
-
-ENV BUILD_DATE=${BUILD_DATE} \
-    SOURCE_BRANCH=${SOURCE_BRANCH} \
-    SOURCE_COMMIT=${SOURCE_COMMIT} \
-    DOCKER_TAG=${DOCKER_TAG}
+# install az
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+# install watchman
 
 WORKDIR /project
-
-# labels, see http://label-schema.org/
-LABEL maintainer="Ming Chen"
-LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.name="mingc/android-build-box"
-LABEL org.label-schema.version="${DOCKER_TAG}"
-LABEL org.label-schema.usage="/README.md"
-LABEL org.label-schema.docker.cmd="docker run --rm -v `pwd`:/project mingc/android-build-box bash -c 'cd /project; ./gradlew build'"
-LABEL org.label-schema.build-date="${BUILD_DATE}"
-LABEL org.label-schema.vcs-ref="${SOURCE_COMMIT}@${SOURCE_BRANCH}"

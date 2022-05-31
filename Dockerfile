@@ -143,7 +143,7 @@ RUN echo "bundletool" && \
     mv bundletool.jar $ANDROID_SDK_HOME/tools/
 
 RUN echo "NDK" && \
-    NDK=$(grep 'ndk;' packages.txt | grep $NODE_VERSION | tail -n1 | awk '{print $1}') && \
+    NDK=$(grep 'ndk;' packages.txt | grep $NDK_VERSION | tail -n1 | awk '{print $1}') && \
     NDK_VERSION=$(echo $NDK | awk -F\; '{print $2}') && \
     echo "Installing $NDK" && \
     . /etc/jdk.env && \

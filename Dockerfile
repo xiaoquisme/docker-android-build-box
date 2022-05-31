@@ -162,7 +162,7 @@ RUN du -sh $ANDROID_HOME
 RUN mkdir -p $ANDROID_HOME/licenses
 COPY sdk/licenses/* $ANDROID_HOME/licenses/
 # install az
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 # install watchman
 
 WORKDIR /project

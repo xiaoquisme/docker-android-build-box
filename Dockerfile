@@ -30,7 +30,7 @@ ENV LANG="en_US.UTF-8" \
 RUN apt-get clean && \
     apt-get update -qq && \
     apt-get install -qq -y apt-utils locales && \
-    locale-gen $LANG
+    locale-gen $LANG > /dev/null
 
 ENV DEBIAN_FRONTEND="noninteractive" \
     TERM=dumb \
@@ -134,13 +134,13 @@ RUN echo "build tools 19-26" && \
         "build-tools;22.0.1" \
         "build-tools;21.1.2" \
         "build-tools;20.0.0" \
-        "build-tools;19.1.0"
+        "build-tools;19.1.0" > /dev/null
 
 
 
 RUN echo "bundletool" && \
     wget -q https://github.com/google/bundletool/releases/download/1.9.1/bundletool-all-1.9.1.jar -O bundletool.jar && \
-    mv bundletool.jar $ANDROID_SDK_HOME/tools/
+    mv bundletool.jar $ANDROID_SDK_HOME/tools/ > /dev/null
 
 RUN echo "NDK" && \
     NDK=$(grep 'ndk;' packages.txt | grep $NDK_VERSION | tail -n1 | awk '{print $1}') && \
@@ -155,14 +155,14 @@ RUN ls -l $ANDROID_HOME && \
     ls -l $ANDROID_HOME/ndk && \
     ls -l $ANDROID_HOME/ndk/*
 
-RUN du -sh $ANDROID_HOME
+RUN du -sh $ANDROID_HOME > /dev/null
 
 
 # Copy sdk license agreement files.
 RUN mkdir -p $ANDROID_HOME/licenses
 COPY sdk/licenses/* $ANDROID_HOME/licenses/
 # install az
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash  > /dev/null
 # install watchman
 ENV WATCH_MAN_VERSION="v2022.05.30.00"
 

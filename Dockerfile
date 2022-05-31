@@ -16,6 +16,7 @@ ENV TZ=America/Los_Angeles
 
 # Get the latest version from https://developer.android.com/studio/index.html
 ENV ANDROID_SDK_TOOLS_VERSION="4333796"
+ENV NDK_VERSION="16.1.4479499"
 
 # nodejs version
 ENV NODE_VERSION="8.x"
@@ -143,7 +144,7 @@ RUN echo "bundletool" && \
     mv bundletool.jar $ANDROID_SDK_HOME/tools/
 
 RUN echo "NDK" && \
-    NDK=$(grep 'ndk;' packages.txt | sort | tail -n1 | awk '{print $1}') && \
+    NDK=$(grep 'ndk;' packages.txt | grep $NODE_VERSION | tail -n1 | awk '{print $1}') && \
     NDK_VERSION=$(echo $NDK | awk -F\; '{print $2}') && \
     echo "Installing $NDK" && \
     . /etc/jdk.env && \

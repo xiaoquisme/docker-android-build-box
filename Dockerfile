@@ -19,7 +19,7 @@ ENV ANDROID_SDK_TOOLS_VERSION="4333796"
 ENV NDK_VERSION="16.1.4479499"
 
 # nodejs version
-ENV NODE_VERSION="8.x"
+ENV NODE_VERSION="8.17.0"
 ENV NVM_DIR=/usr/local/nvm
 
 # Set locale
@@ -71,14 +71,13 @@ RUN echo "JVM directories: `ls -l /usr/lib/jvm/`" && \
     echo "set timezone" && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN echo "nodejs, npm, cordova, ionic, react-native" && \
-    curl -sL -k https://deb.nodesource.com/setup_${NODE_VERSION} \
-            | bash - && \
-    apt-get install -qq nodejs && \
-    apt-get clean
-
-
-RUN npm install --quiet -g npm
+RUN echo "nvm nodejs, npm" && \
+    mkdir -p $NVM_DIR && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash > /dev/null && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    nvm install $NODE_VERSION && \
+    nvm alias default 8.17.0 && \
+    nvm use default > /dev/null
 
 # Install Android SDK
 RUN echo "sdk tools ${ANDROID_SDK_TOOLS_VERSION}" && \

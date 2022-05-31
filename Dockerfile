@@ -161,8 +161,7 @@ RUN du -sh $ANDROID_HOME > /dev/null
 # Copy sdk license agreement files.
 RUN mkdir -p $ANDROID_HOME/licenses
 COPY sdk/licenses/* $ANDROID_HOME/licenses/
-# install az
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash  > /dev/null
+
 # install watchman
 ENV WATCH_MAN_VERSION="v2022.05.30.00"
 

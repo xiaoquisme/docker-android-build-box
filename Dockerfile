@@ -76,7 +76,7 @@ RUN echo "nvm nodejs, npm" && \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash > /dev/null && \
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
     nvm install $NODE_VERSION && \
-    nvm alias default 8.17.0 && \
+    nvm alias default $NODE_VERSION && \
     nvm use default > /dev/null
 
 # Install Android SDK

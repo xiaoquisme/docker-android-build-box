@@ -20,6 +20,7 @@ ENV NDK_VERSION="16.1.4479499"
 
 # nodejs version
 ENV NODE_VERSION="8.17.0"
+ENV NODE_BACKUP_VERSION="16.15.0"
 ENV NVM_DIR=/usr/local/nvm
 
 # Set locale
@@ -84,8 +85,13 @@ RUN echo "nvm nodejs, npm" && \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash > /dev/null && \
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
     nvm install $NODE_VERSION && \
+    nvm install $NODE_BACKUP_VERSION && \
+    nvm use $NODE_BACKUP_VERSION && \
+    npm install -g npm &&\
     nvm alias default $NODE_VERSION && \
-    nvm use default > /dev/null
+    nvm use default && \
+    npm cache clean --force > /dev/null && \
+    rm -rf /tmp/* /var/tmp/*
 
 # Install Android SDK
 RUN echo "sdk tools ${ANDROID_SDK_TOOLS_VERSION}" && \

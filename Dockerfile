@@ -72,7 +72,6 @@ RUN echo "nvm nodejs, npm" && \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> /etc/bash.bashrc && \
     nvm install $NODE_VERSION && \
     nvm use $NODE_VERSION && \
-    npm install -g npm && \
     npm cache clean --force > /dev/null && \
     rm -rf /tmp/* /var/tmp/*
 

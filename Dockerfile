@@ -174,18 +174,4 @@ RUN du -sh $ANDROID_HOME > /dev/null
 RUN mkdir -p $ANDROID_HOME/licenses
 COPY sdk/licenses/* $ANDROID_HOME/licenses/
 
-# install watchman
-ENV WATCH_MAN_VERSION="v2022.05.30.00"
-
-RUN wget -q https://github.com/facebook/watchman/releases/download/$WATCH_MAN_VERSION/watchman-$WATCH_MAN_VERSION-linux.zip -O watchman.zip && \
-    unzip watchman.zip && \
-    cd watchman-$WATCH_MAN_VERSION-linux && \
-    mkdir -p /usr/local/{bin,lib} /usr/local/var/run/watchman && \
-    cp bin/* /usr/local/bin && \
-    cp lib/* /usr/local/lib && \
-    chmod 755 /usr/local/bin/watchman && \
-    chmod 2777 /usr/local/var/run/watchman &&\
-    watchman -v
-
-
 WORKDIR /project

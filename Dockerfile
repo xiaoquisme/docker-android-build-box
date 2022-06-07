@@ -27,16 +27,6 @@ ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8" \
     LC_ALL="en_US.UTF-8"
 
-RUN echo -e "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse \n deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse \n deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse \n deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse"  \
-    > /etc/apt/source.list && \
-      apt-get update
-
-
-
-RUN apt-get clean && \
-    apt-get update -qq && \
-    apt-get install -qq -y apt-utils locales && \
-    locale-gen $LANG > /dev/null
 
 ENV DEBIAN_FRONTEND="noninteractive" \
     TERM=dumb \
@@ -73,18 +63,16 @@ RUN apt-get update -qq > /dev/null && \
 RUN echo "JVM directories: `ls -l /usr/lib/jvm/`" && \
     . /etc/jdk.env && \
     echo "Java version (default):" && \
-    java -version && \
-    echo "set timezone" && \
-    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+    java -version
 
 RUN echo "nvm nodejs, npm" && \
     mkdir -p $NVM_DIR && \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash > /dev/null && \
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> /etc/bash.bashrc && \
     nvm install $NODE_VERSION && \
-    npm install -g npm &&\
-    nvm alias default $NODE_VERSION && \
-    nvm use default && \
+    nvm use $NODE_VERSION && \
+    npm install -g npm && \
     npm cache clean --force > /dev/null && \
     rm -rf /tmp/* /var/tmp/*
 
@@ -114,46 +102,6 @@ RUN mkdir --parents "$ANDROID_HOME/.android/" && \
 RUN . /etc/jdk.env && \
     "$ANDROID_HOME"/tools/bin/sdkmanager --list > packages.txt && \
     cat packages.txt | grep -v '='
-
-#
-# https://developer.android.com/studio/command-line/sdkmanager.html
-#
-RUN echo "platforms" && \
-    . /etc/jdk.env && \
-    yes | "$ANDROID_HOME"/tools/bin/sdkmanager \
-        "platforms;android-26" \
-        "platforms;android-25" \
-        "platforms;android-24" \
-        "platforms;android-23" \
-        "platforms;android-22" \
-        "platforms;android-21" \
-        "platforms;android-20" \
-        "platforms;android-19" > /dev/null
-
-RUN echo "platform tools" && \
-    . /etc/jdk.env && \
-    yes | "$ANDROID_HOME"/tools/bin/sdkmanager \
-        "platform-tools" > /dev/null
-
-RUN echo "build tools 19-26" && \
-    . /etc/jdk.env && \
-    yes | "$ANDROID_HOME"/tools/bin/sdkmanager \
-        "build-tools;26.0.2" "build-tools;26.0.1" "build-tools;26.0.0" \
-        "build-tools;25.0.3" "build-tools;25.0.2" \
-        "build-tools;25.0.1" "build-tools;25.0.0" \
-        "build-tools;24.0.3" "build-tools;24.0.2" \
-        "build-tools;24.0.1" "build-tools;24.0.0"\
-        "build-tools;23.0.3" "build-tools;23.0.2" "build-tools;23.0.1" \
-        "build-tools;22.0.1" \
-        "build-tools;21.1.2" \
-        "build-tools;20.0.0" \
-        "build-tools;19.1.0" > /dev/null
-
-
-
-RUN echo "bundletool" && \
-    wget -q https://github.com/google/bundletool/releases/download/1.9.1/bundletool-all-1.9.1.jar -O bundletool.jar && \
-    mv bundletool.jar $ANDROID_SDK_HOME/tools/ > /dev/null
 
 RUN echo "NDK" && \
     NDK=$(grep 'ndk;' packages.txt | grep $NDK_VERSION | tail -n1 | awk '{print $1}') && \

@@ -88,6 +88,10 @@ RUN echo "nvm nodejs, npm" && \
     npm cache clean --force > /dev/null && \
     rm -rf /tmp/* /var/tmp/*
 
+RUN ln -s $NVM_DIR/versions/node/$NODE_VERSION/bin/node /usr/local/bin/node
+RUN ln -s $NVM_DIR/versions/node/$NODE_VERSION/bin/npm /usr/local/bin/npm
+
+
 # Install Android SDK
 RUN echo "sdk tools ${ANDROID_SDK_TOOLS_VERSION}" && \
     wget --quiet --output-document=sdk-tools.zip \

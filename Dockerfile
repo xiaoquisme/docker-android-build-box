@@ -75,8 +75,8 @@ RUN echo "nvm nodejs, npm" && \
     npm cache clean --force > /dev/null && \
     rm -rf /tmp/* /var/tmp/*
 
-RUN ln -s $NVM_DIR/versions/node/$NODE_VERSION/bin/node /usr/local/bin/node
-RUN ln -s $NVM_DIR/versions/node/$NODE_VERSION/bin/npm /usr/local/bin/npm
+RUN ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/node /usr/local/bin/node
+RUN ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/npm /usr/local/bin/npm
 
 
 # Install Android SDK
